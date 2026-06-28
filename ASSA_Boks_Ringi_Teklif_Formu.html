@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boks Ringi Teklif Seçim Formu | ASSA SPOR</title>
+<style>
+  :root{--cream:#ECEAE3;--paper:#F4F2EC;--red:#E63946;--navy:#1D2B3A;--muted:#6b6b66}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--cream);color:var(--navy);line-height:1.5;display:flex;justify-content:center;padding:20px}
+  .wrap{width:100%;max-width:540px}
+  .card{background:var(--paper);border-radius:18px;padding:26px 22px;
+    box-shadow:0 10px 30px rgba(29,43,58,.08);border-right:6px solid var(--red)}
+  .brand{font-size:13px;letter-spacing:3px;font-weight:700;opacity:.7}
+  h1{font-size:23px;line-height:1.25;margin:10px 0 8px}
+  h1 .hl{color:var(--red)}
+  .sub{color:var(--muted);font-size:14.5px;margin-bottom:8px}
+  .q{margin:22px 0 0}
+  .q .qt{font-weight:700;font-size:15.5px;margin-bottom:9px}
+  .q .qt .req{color:var(--red)}
+  .q .multi{font-weight:400;font-size:12.5px;color:var(--muted)}
+  .opt{display:flex;align-items:center;gap:10px;padding:11px 13px;border:1.5px solid #d3d1c8;
+    border-radius:10px;background:#fff;margin-bottom:8px;cursor:pointer;font-size:14.5px;transition:.12s;user-select:none}
+  .opt:hover{border-color:var(--navy)}
+  .opt.sel{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .opt input{display:none}
+  .dot{width:16px;height:16px;border-radius:50%;border:2px solid #b9b7ae;flex:0 0 auto}
+  .opt.sel .dot{border-color:#fff;background:#fff;box-shadow:inset 0 0 0 3px var(--navy)}
+  .sq{border-radius:4px}
+  .otherbox{display:none;margin-top:8px}
+  .otherbox input{width:100%;padding:11px;border:1.5px solid #d3d1c8;border-radius:10px;font-size:14.5px;font-family:inherit}
+  textarea{width:100%;padding:12px;border:1.5px solid #d3d1c8;border-radius:10px;font-size:14.5px;font-family:inherit;min-height:64px;resize:vertical;margin-top:9px}
+  .btn{display:block;width:100%;margin-top:26px;padding:15px;border:none;border-radius:12px;
+    background:#25D366;color:#fff;font-size:17px;font-weight:700;cursor:pointer}
+  .btn:hover{filter:brightness(.96)}
+  .err{color:var(--red);font-size:14px;margin-top:10px;display:none}
+  .note{font-size:12.5px;color:var(--muted);margin-top:8px}
+  .foot{text-align:center;margin-top:18px;font-size:11.5px;color:var(--muted);letter-spacing:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="brand">ASSA SPOR · ÜRETİCİ</div>
+    <h1>Boks Ringi <span class="hl">Teklif Seçim</span> Formu</h1>
+    <p class="sub">Size en uygun boks ringi modelini önerebilmemiz için aşağıdaki kısa seçenekleri işaretleyin. Ölçüler net değilse yaklaşık seçim yapmanız yeterlidir.</p>
+
+    <div id="form"></div>
+
+    <div class="err" id="err">Lütfen yıldızlı (*) soruları yanıtla.</div>
+    <button class="btn" onclick="gonder()">WhatsApp'tan gönder →</button>
+    <div class="note">Butona basınca WhatsApp, seçimlerin yazılı şekilde açılır. Sadece "Gönder"e bas. Gerekirse kurulum alanı fotoğrafını da ekleyebilirsin.</div>
+    <div class="foot">ASSA SPOR · FABRİKA ÇIKIŞLI · 12 AY GARANTİ · KURULUM</div>
+  </div>
+</div>
+
+<script>
+const WHATSAPP = "905013178213";
+
+const Q = [
+  {id:"sehir", key:"Şehir", q:"Ring kurulacak şehir neresidir?", type:"single", req:true,
+    opts:["Ankara","İstanbul","Diğer"], other:"Diğer"},
+  {id:"amac", key:"Amaç", q:"Satın alma amacınız nedir?", type:"single", req:true,
+    opts:["Boks / dövüş sporları kulübü için","Mevcut spor salonuna ring eklemek için","Diğer"], other:"Diğer"},
+  {id:"salon", key:"Salon durumu", q:"Salonu sıfırdan mı kuruyorsunuz?", type:"single",
+    opts:["Evet, salonu sıfırdan kuruyorum","Hayır, mevcut salona ring eklemek istiyorum","Mevcut salonu yeniliyorum","Henüz net değil / araştırma aşamasındayım"]},
+  {id:"tavan", key:"Tavan yüksekliği", q:"Tavan yüksekliğiniz yaklaşık nedir?", type:"single",
+    opts:["3 metreden düşük","3 metreden yüksek","Bilmiyorum"]},
+  {id:"olcu", key:"Ölçü", q:"İstediğiniz ring ölçüsü nedir?", type:"single", req:true,
+    opts:["4 x 4 m","5 x 5 m","4 x 4 m'den küçük","Diğer"], other:"Diğer"},
+  {id:"kullanim", key:"Kullanım", q:"Kullanım yoğunluğunuz nasıl olacak?", type:"single",
+    opts:["Haftada birkaç ders / PT kullanımı","Her gün yoğun antrenman","Profesyonel kullanım / müsabaka sporcusu hazırlığı"]},
+  {id:"kalite", key:"Kalite tercihi", q:"Ring kalite tercihiniz nedir?", type:"single",
+    opts:["Standart antrenman ringi","Yoğun kullanıma uygun daha sağlam model","Premium / özel üretim model"]},
+  {id:"renk", key:"Renk", q:"Ringde hangi renkleri tercih edersiniz?", type:"multi",
+    opts:["Siyah","Kırmızı","Mavi","Kahverengi","Turuncu","Yeşil","Diğer"], other:"Diğer"},
+  {id:"logo", key:"Logo / baskı", q:"Ring üzerinde logo / özel baskı ister misiniz?", type:"single",
+    opts:["Evet","Hayır","Daha sonra karar vereceğim"]},
+  {id:"ekurun", key:"Ek ürün", q:"Ring dışında başka ürün ihtiyacınız var mı?", type:"multi",
+    opts:["Kum torbası","Kum torbası askı aparatı","Duvar darbe yastığı","Zemin minderi / tatami","Lapa / eldiven / antrenman ekipmanları","Şu an sadece ring düşünüyorum","Diğer"], other:"Diğer"},
+  {id:"onceki", key:"Önceki alışveriş", q:"Daha önce ASSA Spor'dan ürün satın aldınız mı?", type:"single",
+    opts:["Evet","Hayır","Daha önce görüştüm ama satın almadım"]},
+  {id:"zaman", key:"Zaman", q:"Satın alma / kurulum zamanınız nedir?", type:"single", req:true,
+    opts:["Hemen / kısa süre içinde","1 ay içinde","1–3 ay içinde","Sadece fiyat araştırıyorum"]}
+];
+
+const form = document.getElementById('form');
+Q.forEach((item,qi)=>{
+  const div=document.createElement('div'); div.className='q';
+  let html=`<div class="qt">${qi+1}. ${item.q}${item.req?' <span class="req">*</span>':''}`;
+  if(item.type==='multi') html+=` <span class="multi">(birden fazla seçebilirsin)</span>`;
+  html+=`</div>`;
+  item.opts.forEach((o,oi)=>{
+    const inp=item.type==='single'?'radio':'checkbox';
+    const dotcls=item.type==='single'?'dot':'dot sq';
+    html+=`<label class="opt" data-q="${item.id}" onclick="pick(this,'${item.type}')">
+      <input type="${inp}" name="${item.id}" value="${o.replace(/"/g,'&quot;')}">
+      <span class="${dotcls}"></span><span>${o}</span></label>`;
+  });
+  if(item.other){
+    html+=`<div class="otherbox" id="other_${item.id}"><input type="text" id="othertext_${item.id}" placeholder="Lütfen belirtin..."></div>`;
+  }
+  div.innerHTML=html; form.appendChild(div);
+});
+// final note
+const nd=document.createElement('div'); nd.className='q';
+nd.innerHTML=`<div class="qt">Not / ek bilgi <span class="multi">(opsiyonel)</span></div><textarea id="not" placeholder="Eklemek istediğiniz bir şey var mı?"></textarea>`;
+form.appendChild(nd);
+
+function pick(el,type){
+  const q=el.dataset.q;
+  if(type==='single'){
+    document.querySelectorAll(`.opt[data-q="${q}"]`).forEach(l=>l.classList.remove('sel'));
+    el.classList.add('sel'); el.querySelector('input').checked=true;
+  } else {
+    const c=el.querySelector('input'); el.classList.toggle('sel',c.checked);
+  }
+  const ob=document.getElementById('other_'+q);
+  if(ob){
+    const sel=[...document.querySelectorAll(`.opt[data-q="${q}"] input:checked`)].map(i=>i.value);
+    ob.style.display = sel.includes('Diğer') ? 'block' : 'none';
+  }
+}
+
+function gonder(){
+  // required check
+  for(const item of Q){
+    if(item.req){
+      const any=document.querySelector(`input[name="${item.id}"]:checked`);
+      if(!any){ document.getElementById('err').style.display='block';
+        document.querySelector(`.opt[data-q="${item.id}"]`).scrollIntoView({behavior:'smooth',block:'center'}); return; }
+    }
+  }
+  document.getElementById('err').style.display='none';
+
+  let m="ASSA SPOR — Boks Ringi Teklif Talebi\n————————————\n";
+  Q.forEach(item=>{
+    let vals=[...document.querySelectorAll(`input[name="${item.id}"]:checked`)].map(i=>i.value);
+    if(item.other && vals.includes('Diğer')){
+      const t=(document.getElementById('othertext_'+item.id).value||'').trim();
+      vals=vals.map(v=> v==='Diğer' ? ('Diğer: '+(t||'-')) : v);
+    }
+    if(vals.length) m+= item.key+": "+vals.join(", ")+"\n";
+  });
+  const not=(document.getElementById('not').value||'').trim();
+  if(not) m+="Not: "+not+"\n";
+  m+="————————————\nSeçimlerime göre boks ringi teklifi rica ediyorum.";
+
+  window.location.href="https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(m);
+}
+</script>
+</body>
+</html>
